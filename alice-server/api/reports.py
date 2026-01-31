@@ -36,7 +36,7 @@ def verify_admin(request):
     return True
 
 
-@app.route('/api/dashboard/stats', methods=['GET'])
+@app.route('/api/dashboard/stats', methods=['GET', 'OPTIONS'])
 def get_dashboard_stats():
     """
     Get dashboard statistics (admin only)
@@ -51,6 +51,10 @@ def get_dashboard_stats():
             "recent_analyses": [...]
         }
     """
+    # Handle preflight request
+    if request.method == 'OPTIONS':
+        return '', 200
+
     if not verify_admin(request):
         return jsonify({'error': 'Unauthorized'}), 401
 
@@ -100,7 +104,7 @@ def get_dashboard_stats():
         session.close()
 
 
-@app.route('/api/developers', methods=['GET'])
+@app.route('/api/developers', methods=['GET', 'OPTIONS'])
 def get_developers():
     """
     Get all developers with their current grades (admin only)
@@ -109,6 +113,10 @@ def get_developers():
         - sort: 'score' | 'name' | 'grade'
         - order: 'asc' | 'desc'
     """
+    # Handle preflight request
+    if request.method == 'OPTIONS':
+        return '', 200
+
     if not verify_admin(request):
         return jsonify({'error': 'Unauthorized'}), 401
 
@@ -166,13 +174,17 @@ def get_developers():
         session.close()
 
 
-@app.route('/api/developers/<developer_id>/history', methods=['GET'])
+@app.route('/api/developers/<developer_id>/history', methods=['GET', 'OPTIONS'])
 def get_developer_history(developer_id: str):
     """
     Get full assessment history for specific developer (admin only)
 
     Returns all analyses with grades, assessments, trends
     """
+    # Handle preflight request
+    if request.method == 'OPTIONS':
+        return '', 200
+
     if not verify_admin(request):
         return jsonify({'error': 'Unauthorized'}), 401
 
@@ -233,7 +245,7 @@ def get_developer_history(developer_id: str):
         session.close()
 
 
-@app.route('/api/projects/<project_id>/analytics', methods=['GET'])
+@app.route('/api/projects/<project_id>/analytics', methods=['GET', 'OPTIONS'])
 def get_project_analytics(project_id: str):
     """
     Get analytics for specific project (admin only)
@@ -241,6 +253,10 @@ def get_project_analytics(project_id: str):
     Query params:
         - days: number of days to analyze (default 30)
     """
+    # Handle preflight request
+    if request.method == 'OPTIONS':
+        return '', 200
+
     if not verify_admin(request):
         return jsonify({'error': 'Unauthorized'}), 401
 
@@ -298,11 +314,15 @@ def get_project_analytics(project_id: str):
         session.close()
 
 
-@app.route('/api/analyses/<analysis_id>', methods=['GET'])
+@app.route('/api/analyses/<analysis_id>', methods=['GET', 'OPTIONS'])
 def get_analysis_details(analysis_id: str):
     """
     Get full details of specific analysis (admin only)
     """
+    # Handle preflight request
+    if request.method == 'OPTIONS':
+        return '', 200
+
     if not verify_admin(request):
         return jsonify({'error': 'Unauthorized'}), 401
 

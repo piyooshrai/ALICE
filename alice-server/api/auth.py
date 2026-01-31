@@ -30,7 +30,7 @@ def generate_api_key() -> str:
     return f"alice_{secrets.token_urlsafe(32)}"
 
 
-@app.route('/api/projects', methods=['POST'])
+@app.route('/api/projects', methods=['POST', 'OPTIONS'])
 def create_project():
     """
     Create new project and generate API key
@@ -48,6 +48,10 @@ def create_project():
             "name": "Project Name"
         }
     """
+    # Handle preflight request
+    if request.method == 'OPTIONS':
+        return '', 200
+
     # Verify admin key
     admin_key = request.json.get('admin_key')
     expected_admin_key = os.environ.get('ADMIN_API_KEY')
@@ -91,13 +95,17 @@ def create_project():
         session.close()
 
 
-@app.route('/api/projects/<project_id>/regenerate-key', methods=['POST'])
+@app.route('/api/projects/<project_id>/regenerate-key', methods=['POST', 'OPTIONS'])
 def regenerate_api_key(project_id: str):
     """
     Regenerate API key for existing project
 
     Requires admin key in header: X-Admin-Key
     """
+    # Handle preflight request
+    if request.method == 'OPTIONS':
+        return '', 200
+
     admin_key = request.headers.get('X-Admin-Key')
     expected_admin_key = os.environ.get('ADMIN_API_KEY')
 
@@ -135,13 +143,17 @@ def regenerate_api_key(project_id: str):
         session.close()
 
 
-@app.route('/api/verify', methods=['POST'])
+@app.route('/api/verify', methods=['POST', 'OPTIONS'])
 def verify_api_key():
     """
     Verify API key validity
 
     Header: X-API-Key
     """
+    # Handle preflight request
+    if request.method == 'OPTIONS':
+        return '', 200
+
     api_key = request.headers.get('X-API-Key')
 
     if not api_key:
