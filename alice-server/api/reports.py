@@ -12,30 +12,12 @@ from utils.encryption import EncryptionManager
 
 app = Flask(__name__)
 
+# Build timestamp for debugging
+BUILD_TIMESTAMP = datetime.utcnow().isoformat()
+
 # Initialize database
 db_manager = DatabaseManager(os.environ.get('DATABASE_URL', 'postgresql://localhost/alice'))
 encryption = EncryptionManager()
-
-
-@app.before_request
-def handle_preflight():
-    """Handle OPTIONS preflight requests"""
-    if request.method == 'OPTIONS':
-        response = make_response('', 200)
-        response.headers['Access-Control-Allow-Origin'] = '*'
-        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
-        response.headers['Access-Control-Allow-Headers'] = 'Content-Type, X-API-Key, X-Admin-Key'
-        response.headers['Access-Control-Max-Age'] = '3600'
-        return response
-
-
-@app.after_request
-def add_cors_headers(response):
-    """Add CORS headers to all responses"""
-    response.headers['Access-Control-Allow-Origin'] = '*'
-    response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
-    response.headers['Access-Control-Allow-Headers'] = 'Content-Type, X-API-Key, X-Admin-Key'
-    return response
 
 
 def verify_admin(request):
@@ -381,8 +363,39 @@ def get_analysis_details(analysis_id: str):
         session.close()
 
 
-# Vercel serverless handler
-def handler(request):
-    """Vercel serverless function handler"""
-    with app.request_context(request.environ):
-        return app.full_dispatch_request()
+# CORS middleware wrapper for Vercel
+class CORSMiddleware:
+    def __init__(self, app):
+        self.app = app
+
+    def __call__(self, environ, start_response):
+        # Handle OPTIONS request at WSGI level
+        if environ['REQUEST_METHOD'] == 'OPTIONS':
+            headers = [
+                ('Access-Control-Allow-Origin', '*'),
+                ('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'),
+                ('Access-Control-Allow-Headers', 'Content-Type, X-API-Key, X-Admin-Key'),
+                ('Access-Control-Max-Age', '3600'),
+                ('Content-Type', 'text/plain'),
+                ('Content-Length', '0')
+            ]
+            start_response('200 OK', headers)
+            return [b'']
+
+        # For non-OPTIONS, wrap the response
+        def custom_start_response(status, headers, exc_info=None):
+            # Add CORS headers to all responses
+            cors_headers = [
+                ('Access-Control-Allow-Origin', '*'),
+                ('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'),
+                ('Access-Control-Allow-Headers', 'Content-Type, X-API-Key, X-Admin-Key'),
+                ('X-ALICE-Build', BUILD_TIMESTAMP)
+            ]
+            # Merge with existing headers
+            all_headers = headers + cors_headers
+            return start_response(status, all_headers, exc_info)
+
+        return self.app(environ, custom_start_response)
+
+# Wrap Flask app with CORS middleware
+app.wsgi_app = CORSMiddleware(app.wsgi_app)
