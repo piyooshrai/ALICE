@@ -7,10 +7,21 @@ import os
 import secrets
 from datetime import datetime
 from flask import Flask, request, jsonify, make_response
+from flask_cors import CORS
 from database.models import DatabaseManager, Project
 from utils.encryption import EncryptionManager
 
 app = Flask(__name__)
+
+# Enable CORS for all routes
+CORS(app, resources={
+    r"/api/*": {
+        "origins": "*",
+        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        "allow_headers": ["Content-Type", "X-API-Key", "X-Admin-Key"],
+        "max_age": 3600
+    }
+})
 
 # Build timestamp for debugging
 BUILD_TIMESTAMP = datetime.utcnow().isoformat()
@@ -20,22 +31,12 @@ db_manager = DatabaseManager(os.environ.get('DATABASE_URL', 'postgresql://localh
 encryption = EncryptionManager()
 
 
-def add_cors_headers(response):
-    """Add CORS headers to response"""
-    response.headers['Access-Control-Allow-Origin'] = '*'
-    response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
-    response.headers['Access-Control-Allow-Headers'] = 'Content-Type, X-API-Key, X-Admin-Key'
-    response.headers['Access-Control-Max-Age'] = '3600'
-    response.headers['X-ALICE-Build'] = BUILD_TIMESTAMP
-    return response
-
-
 def generate_api_key() -> str:
     """Generate secure API key"""
     return f"alice_{secrets.token_urlsafe(32)}"
 
 
-@app.route('/api/projects', methods=['POST', 'OPTIONS'])
+@app.route('/api/projects', methods=['POST'])
 def create_project():
     """
     Create new project and generate API key
@@ -53,23 +54,16 @@ def create_project():
             "name": "Project Name"
         }
     """
-    # Handle preflight request
-    if request.method == 'OPTIONS':
-        response = make_response('', 200)
-        return add_cors_headers(response)
-
     # Verify admin key
     admin_key = request.json.get('admin_key')
     expected_admin_key = os.environ.get('ADMIN_API_KEY')
 
     if not admin_key or admin_key != expected_admin_key:
-        response = make_response(jsonify({'error': 'Unauthorized - invalid admin key'}), 401)
-        return add_cors_headers(response)
+        return jsonify({'error': 'Unauthorized - invalid admin key'}), 401
 
     project_name = request.json.get('name')
     if not project_name:
-        response = make_response(jsonify({'error': 'Project name required'}), 400)
-        return add_cors_headers(response)
+        return jsonify({'error': 'Project name required'}), 400
 
     session = db_manager.get_session()
 
@@ -88,42 +82,34 @@ def create_project():
         session.add(project)
         session.commit()
 
-        response = make_response(jsonify({
+        return jsonify({
             'project_id': str(project.id),
             'api_key': api_key,
             'name': project.name,
             'created_at': project.created_at.isoformat(),
             '_build': BUILD_TIMESTAMP
-        }), 201)
-        return add_cors_headers(response)
+        }), 201
 
     except Exception as e:
         session.rollback()
-        response = make_response(jsonify({'error': f'Failed to create project: {str(e)}'}), 500)
-        return add_cors_headers(response)
+        return jsonify({'error': f'Failed to create project: {str(e)}'}), 500
 
     finally:
         session.close()
 
 
-@app.route('/api/projects/<project_id>/regenerate-key', methods=['POST', 'OPTIONS'])
+@app.route('/api/projects/<project_id>/regenerate-key', methods=['POST'])
 def regenerate_api_key(project_id: str):
     """
     Regenerate API key for existing project
 
     Requires admin key in header: X-Admin-Key
     """
-    # Handle preflight request
-    if request.method == 'OPTIONS':
-        response = make_response('', 200)
-        return add_cors_headers(response)
-
     admin_key = request.headers.get('X-Admin-Key')
     expected_admin_key = os.environ.get('ADMIN_API_KEY')
 
     if not admin_key or admin_key != expected_admin_key:
-        response = make_response(jsonify({'error': 'Unauthorized'}), 401)
-        return add_cors_headers(response)
+        return jsonify({'error': 'Unauthorized'}), 401
 
     session = db_manager.get_session()
 
@@ -131,8 +117,7 @@ def regenerate_api_key(project_id: str):
         project = session.query(Project).filter_by(id=project_id).first()
 
         if not project:
-            response = make_response(jsonify({'error': 'Project not found'}), 404)
-            return add_cors_headers(response)
+            return jsonify({'error': 'Project not found'}), 404
 
         # Generate new API key
         new_api_key = generate_api_key()
@@ -143,39 +128,31 @@ def regenerate_api_key(project_id: str):
 
         session.commit()
 
-        response = make_response(jsonify({
+        return jsonify({
             'project_id': str(project.id),
             'api_key': new_api_key,
             'message': 'API key regenerated successfully'
-        }), 200)
-        return add_cors_headers(response)
+        }), 200
 
     except Exception as e:
         session.rollback()
-        response = make_response(jsonify({'error': f'Failed to regenerate key: {str(e)}'}), 500)
-        return add_cors_headers(response)
+        return jsonify({'error': f'Failed to regenerate key: {str(e)}'}), 500
 
     finally:
         session.close()
 
 
-@app.route('/api/verify', methods=['POST', 'OPTIONS'])
+@app.route('/api/verify', methods=['POST'])
 def verify_api_key():
     """
     Verify API key validity
 
     Header: X-API-Key
     """
-    # Handle preflight request
-    if request.method == 'OPTIONS':
-        response = make_response('', 200)
-        return add_cors_headers(response)
-
     api_key = request.headers.get('X-API-Key')
 
     if not api_key:
-        response = make_response(jsonify({'error': 'API key required'}), 401)
-        return add_cors_headers(response)
+        return jsonify({'error': 'API key required'}), 401
 
     session = db_manager.get_session()
 
@@ -184,53 +161,13 @@ def verify_api_key():
         project = session.query(Project).filter_by(api_key_hash=api_key_hash).first()
 
         if not project:
-            response = make_response(jsonify({'valid': False, 'error': 'Invalid API key'}), 401)
-            return add_cors_headers(response)
+            return jsonify({'valid': False, 'error': 'Invalid API key'}), 401
 
-        response = make_response(jsonify({
+        return jsonify({
             'valid': True,
             'project_id': str(project.id),
             'project_name': project.name
-        }), 200)
-        return add_cors_headers(response)
+        }), 200
 
     finally:
         session.close()
-
-
-# CORS middleware wrapper for Vercel
-class CORSMiddleware:
-    def __init__(self, app):
-        self.app = app
-
-    def __call__(self, environ, start_response):
-        # Handle OPTIONS request at WSGI level
-        if environ['REQUEST_METHOD'] == 'OPTIONS':
-            headers = [
-                ('Access-Control-Allow-Origin', '*'),
-                ('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'),
-                ('Access-Control-Allow-Headers', 'Content-Type, X-API-Key, X-Admin-Key'),
-                ('Access-Control-Max-Age', '3600'),
-                ('Content-Type', 'text/plain'),
-                ('Content-Length', '0')
-            ]
-            start_response('200 OK', headers)
-            return [b'']
-
-        # For non-OPTIONS, wrap the response
-        def custom_start_response(status, headers, exc_info=None):
-            # Add CORS headers to all responses
-            cors_headers = [
-                ('Access-Control-Allow-Origin', '*'),
-                ('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'),
-                ('Access-Control-Allow-Headers', 'Content-Type, X-API-Key, X-Admin-Key'),
-                ('X-ALICE-Build', BUILD_TIMESTAMP)
-            ]
-            # Merge with existing headers
-            all_headers = headers + cors_headers
-            return start_response(status, all_headers, exc_info)
-
-        return self.app(environ, custom_start_response)
-
-# Wrap Flask app with CORS middleware
-app.wsgi_app = CORSMiddleware(app.wsgi_app)
