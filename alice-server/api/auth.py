@@ -16,6 +16,15 @@ db_manager = DatabaseManager(os.environ.get('DATABASE_URL', 'postgresql://localh
 encryption = EncryptionManager()
 
 
+@app.after_request
+def add_cors_headers(response):
+    """Add CORS headers to all responses"""
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type, X-API-Key, X-Admin-Key'
+    return response
+
+
 def generate_api_key() -> str:
     """Generate secure API key"""
     return f"alice_{secrets.token_urlsafe(32)}"
