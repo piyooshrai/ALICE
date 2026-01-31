@@ -7,8 +7,11 @@ export async function POST(request: NextRequest) {
     console.log('🟦 Next.js API route - Creating project:', body.name)
     console.log('🟦 Admin key present:', !!process.env.ADMIN_API_KEY)
 
+    const serverUrl = process.env.ALICE_SERVER_URL || 'https://alice-server-fawn.vercel.app'
+    console.log('🟦 Server URL:', serverUrl)
+
     // Forward request to alice-server (server-to-server, no CORS issue)
-    const response = await fetch('https://alice-server-pvhl.vercel.app/api/projects', {
+    const response = await fetch(`${serverUrl}/api/projects`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
