@@ -39,11 +39,13 @@ export default function ProjectsPage() {
       console.log('🔵 Response status:', response.status)
       console.log('🔵 Response headers:', Object.fromEntries(response.headers.entries()))
 
+      const data = await response.json()
+      console.log('🔵 Response data:', data)
+
       if (!response.ok) {
-        throw new Error('Failed to create project')
+        throw new Error(data.error || data.details || 'Failed to create project')
       }
 
-      const data = await response.json()
       console.log('🔵 Project created successfully:', data)
 
       // Add to projects list
