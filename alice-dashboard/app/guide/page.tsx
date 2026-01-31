@@ -2,19 +2,19 @@
 
 export default function DeveloperGuidePage() {
   return (
-    <div className="space-y-12 max-w-4xl">
+    <div className="space-y-6 sm:space-y-8 lg:space-y-12 max-w-4xl">
       {/* Header */}
       <div>
-        <h2 className="text-3xl font-bold tracking-tight text-text-primary">
+        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-text-primary">
           Developer Guide
         </h2>
-        <p className="text-text-secondary mt-2">
+        <p className="text-sm sm:text-base text-text-secondary mt-2">
           How to use ALICE to analyze your code
         </p>
       </div>
 
       {/* Installation */}
-      <section className="bg-surface border border-border rounded-lg p-6">
+      <section className="bg-surface border border-border rounded-lg p-4 sm:p-6">
         <h3 className="text-xl font-semibold mb-4">Installation</h3>
         <div className="space-y-4">
           <div>
@@ -27,7 +27,7 @@ npm install -g @the-algo/alice
       </section>
 
       {/* Setup */}
-      <section className="bg-surface border border-border rounded-lg p-6">
+      <section className="bg-surface border border-border rounded-lg p-4 sm:p-6">
         <h3 className="text-xl font-semibold mb-4">First-Time Setup</h3>
         <div className="space-y-4">
           <p className="text-text-secondary">
@@ -48,7 +48,7 @@ alice init
       </section>
 
       {/* Frontend */}
-      <section className="bg-surface border border-border rounded-lg p-6">
+      <section className="bg-surface border border-border rounded-lg p-4 sm:p-6">
         <h3 className="text-xl font-semibold mb-4">Frontend Code</h3>
         <div className="space-y-4">
           <p className="text-text-secondary">
@@ -72,7 +72,7 @@ alice analyze --type frontend
       </section>
 
       {/* Backend */}
-      <section className="bg-surface border border-border rounded-lg p-6">
+      <section className="bg-surface border border-border rounded-lg p-4 sm:p-6">
         <h3 className="text-xl font-semibold mb-4">Backend Code</h3>
         <div className="space-y-4">
           <p className="text-text-secondary">
@@ -96,7 +96,7 @@ alice analyze --type backend
       </section>
 
       {/* Mobile */}
-      <section className="bg-surface border border-border rounded-lg p-6">
+      <section className="bg-surface border border-border rounded-lg p-4 sm:p-6">
         <h3 className="text-xl font-semibold mb-4">Mobile Code</h3>
         <div className="space-y-4">
           <p className="text-text-secondary">
@@ -120,7 +120,7 @@ alice analyze --type mobile
       </section>
 
       {/* What Happens */}
-      <section className="bg-surface border border-border rounded-lg p-6">
+      <section className="bg-surface border border-border rounded-lg p-4 sm:p-6">
         <h3 className="text-xl font-semibold mb-4">What Happens After Analysis</h3>
         <div className="space-y-4">
           <div className="space-y-3">
@@ -147,7 +147,7 @@ alice analyze --type mobile
       </section>
 
       {/* Scoring */}
-      <section className="bg-surface border border-border rounded-lg p-6">
+      <section className="bg-surface border border-border rounded-lg p-4 sm:p-6">
         <h3 className="text-xl font-semibold mb-4">How Scoring Works</h3>
         <div className="space-y-4">
           <p className="text-text-secondary">
@@ -204,7 +204,7 @@ alice analyze --type mobile
       </section>
 
       {/* Best Practices */}
-      <section className="bg-surface border border-border rounded-lg p-6">
+      <section className="bg-surface border border-border rounded-lg p-4 sm:p-6">
         <h3 className="text-xl font-semibold mb-4">Best Practices</h3>
         <ul className="text-sm text-text-secondary space-y-2">
           <li>• <span className="font-semibold">Run before commits:</span> Catch issues early</li>
@@ -216,7 +216,7 @@ alice analyze --type mobile
       </section>
 
       {/* Help */}
-      <section className="bg-surface border border-border rounded-lg p-6">
+      <section className="bg-surface border border-border rounded-lg p-4 sm:p-6">
         <h3 className="text-xl font-semibold mb-4">Need Help?</h3>
         <div className="text-sm text-text-secondary space-y-2">
           <p>Contact your team lead or project manager for:</p>
