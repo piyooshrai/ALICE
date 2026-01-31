@@ -5,35 +5,28 @@ API key management and project creation
 
 import os
 import secrets
+from datetime import datetime
 from flask import Flask, request, jsonify, make_response
 from database.models import DatabaseManager, Project
 from utils.encryption import EncryptionManager
 
 app = Flask(__name__)
 
+# Build timestamp for debugging
+BUILD_TIMESTAMP = datetime.utcnow().isoformat()
+
 # Initialize database
 db_manager = DatabaseManager(os.environ.get('DATABASE_URL', 'postgresql://localhost/alice'))
 encryption = EncryptionManager()
 
 
-@app.before_request
-def handle_preflight():
-    """Handle OPTIONS preflight requests"""
-    if request.method == 'OPTIONS':
-        response = make_response('', 200)
-        response.headers['Access-Control-Allow-Origin'] = '*'
-        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
-        response.headers['Access-Control-Allow-Headers'] = 'Content-Type, X-API-Key, X-Admin-Key'
-        response.headers['Access-Control-Max-Age'] = '3600'
-        return response
-
-
-@app.after_request
 def add_cors_headers(response):
-    """Add CORS headers to all responses"""
+    """Add CORS headers to response"""
     response.headers['Access-Control-Allow-Origin'] = '*'
     response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type, X-API-Key, X-Admin-Key'
+    response.headers['Access-Control-Max-Age'] = '3600'
+    response.headers['X-ALICE-Build'] = BUILD_TIMESTAMP
     return response
 
 
@@ -62,18 +55,21 @@ def create_project():
     """
     # Handle preflight request
     if request.method == 'OPTIONS':
-        return '', 200
+        response = make_response('', 200)
+        return add_cors_headers(response)
 
     # Verify admin key
     admin_key = request.json.get('admin_key')
     expected_admin_key = os.environ.get('ADMIN_API_KEY')
 
     if not admin_key or admin_key != expected_admin_key:
-        return jsonify({'error': 'Unauthorized - invalid admin key'}), 401
+        response = make_response(jsonify({'error': 'Unauthorized - invalid admin key'}), 401)
+        return add_cors_headers(response)
 
     project_name = request.json.get('name')
     if not project_name:
-        return jsonify({'error': 'Project name required'}), 400
+        response = make_response(jsonify({'error': 'Project name required'}), 400)
+        return add_cors_headers(response)
 
     session = db_manager.get_session()
 
@@ -92,16 +88,19 @@ def create_project():
         session.add(project)
         session.commit()
 
-        return jsonify({
+        response = make_response(jsonify({
             'project_id': str(project.id),
             'api_key': api_key,
             'name': project.name,
-            'created_at': project.created_at.isoformat()
-        }), 201
+            'created_at': project.created_at.isoformat(),
+            '_build': BUILD_TIMESTAMP
+        }), 201)
+        return add_cors_headers(response)
 
     except Exception as e:
         session.rollback()
-        return jsonify({'error': f'Failed to create project: {str(e)}'}), 500
+        response = make_response(jsonify({'error': f'Failed to create project: {str(e)}'}), 500)
+        return add_cors_headers(response)
 
     finally:
         session.close()
@@ -116,13 +115,15 @@ def regenerate_api_key(project_id: str):
     """
     # Handle preflight request
     if request.method == 'OPTIONS':
-        return '', 200
+        response = make_response('', 200)
+        return add_cors_headers(response)
 
     admin_key = request.headers.get('X-Admin-Key')
     expected_admin_key = os.environ.get('ADMIN_API_KEY')
 
     if not admin_key or admin_key != expected_admin_key:
-        return jsonify({'error': 'Unauthorized'}), 401
+        response = make_response(jsonify({'error': 'Unauthorized'}), 401)
+        return add_cors_headers(response)
 
     session = db_manager.get_session()
 
@@ -130,7 +131,8 @@ def regenerate_api_key(project_id: str):
         project = session.query(Project).filter_by(id=project_id).first()
 
         if not project:
-            return jsonify({'error': 'Project not found'}), 404
+            response = make_response(jsonify({'error': 'Project not found'}), 404)
+            return add_cors_headers(response)
 
         # Generate new API key
         new_api_key = generate_api_key()
@@ -141,15 +143,17 @@ def regenerate_api_key(project_id: str):
 
         session.commit()
 
-        return jsonify({
+        response = make_response(jsonify({
             'project_id': str(project.id),
             'api_key': new_api_key,
             'message': 'API key regenerated successfully'
-        }), 200
+        }), 200)
+        return add_cors_headers(response)
 
     except Exception as e:
         session.rollback()
-        return jsonify({'error': f'Failed to regenerate key: {str(e)}'}), 500
+        response = make_response(jsonify({'error': f'Failed to regenerate key: {str(e)}'}), 500)
+        return add_cors_headers(response)
 
     finally:
         session.close()
@@ -164,12 +168,14 @@ def verify_api_key():
     """
     # Handle preflight request
     if request.method == 'OPTIONS':
-        return '', 200
+        response = make_response('', 200)
+        return add_cors_headers(response)
 
     api_key = request.headers.get('X-API-Key')
 
     if not api_key:
-        return jsonify({'error': 'API key required'}), 401
+        response = make_response(jsonify({'error': 'API key required'}), 401)
+        return add_cors_headers(response)
 
     session = db_manager.get_session()
 
@@ -178,13 +184,15 @@ def verify_api_key():
         project = session.query(Project).filter_by(api_key_hash=api_key_hash).first()
 
         if not project:
-            return jsonify({'valid': False, 'error': 'Invalid API key'}), 401
+            response = make_response(jsonify({'valid': False, 'error': 'Invalid API key'}), 401)
+            return add_cors_headers(response)
 
-        return jsonify({
+        response = make_response(jsonify({
             'valid': True,
             'project_id': str(project.id),
             'project_name': project.name
-        }), 200
+        }), 200)
+        return add_cors_headers(response)
 
     finally:
         session.close()

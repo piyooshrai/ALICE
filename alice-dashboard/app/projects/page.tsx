@@ -21,6 +21,10 @@ export default function ProjectsPage() {
     setLoading(true)
     setError('')
 
+    console.log('🔵 ALICE Dashboard - Build timestamp:', new Date().toISOString())
+    console.log('🔵 Creating project:', projectName)
+    console.log('🔵 API endpoint:', 'https://alice-server-pvhl.vercel.app/api/projects')
+
     try {
       const response = await fetch('https://alice-server-pvhl.vercel.app/api/projects', {
         method: 'POST',
@@ -33,11 +37,15 @@ export default function ProjectsPage() {
         }),
       })
 
+      console.log('🔵 Response status:', response.status)
+      console.log('🔵 Response headers:', Object.fromEntries(response.headers.entries()))
+
       if (!response.ok) {
         throw new Error('Failed to create project')
       }
 
       const data = await response.json()
+      console.log('🔵 Project created successfully:', data)
 
       // Add to projects list
       setProjects([
@@ -52,6 +60,7 @@ export default function ProjectsPage() {
 
       setProjectName('')
     } catch (err) {
+      console.error('🔴 Error creating project:', err)
       setError(err instanceof Error ? err.message : 'Failed to create project')
     } finally {
       setLoading(false)
