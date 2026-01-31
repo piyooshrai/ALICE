@@ -11,8 +11,8 @@ psycopg2-binary==2.9.9
 # Security & Encryption
 cryptography==41.0.7
 
-# Email
-secure-smtplib==0.1.1
+# Email - Amazon SES
+boto3==1.34.0
 
 # Code analysis
 esprima==4.0.1

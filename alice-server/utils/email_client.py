@@ -1,38 +1,29 @@
 """
 ALICE Email Client
-Obfuscated email sending for technical and management reports
+Email sending via Amazon SES for technical and management reports
 """
 
 import os
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-from email.mime.application import MIMEApplication
+import boto3
+from botocore.exceptions import ClientError
 from typing import Optional, List
 from datetime import datetime
-from .encryption import EncryptionManager
 
 
 class EmailClient:
-    """Secure email client with credential obfuscation"""
+    """Email client using Amazon SES"""
 
     def __init__(self):
-        """Initialize email client with obfuscated credentials"""
-        self.encryption = EncryptionManager()
+        """Initialize email client with AWS SES"""
+        # AWS SES configuration
+        self.ses_client = boto3.client(
+            'ses',
+            region_name=os.environ.get('AWS_REGION', 'us-east-1'),
+            aws_access_key_id=os.environ.get('AWS_ACCESS_KEY_ID'),
+            aws_secret_access_key=os.environ.get('AWS_SECRET_ACCESS_KEY')
+        )
 
-        # Deobfuscate credentials
-        self.host = os.environ.get('EMAIL_HOST', 'smtp.gmail.com')
-        self.port = int(os.environ.get('EMAIL_PORT', '587'))
-
-        # Credentials are stored obfuscated in environment
-        email_user_b64 = os.environ.get('EMAIL_USER_B64')
-        email_pass_encrypted = os.environ.get('EMAIL_PASS_ENCRYPTED')
-
-        if not email_user_b64 or not email_pass_encrypted:
-            raise ValueError("Email credentials not configured")
-
-        self.username = self.encryption.deobfuscate_string(email_user_b64)
-        self.password = self.encryption.decrypt(email_pass_encrypted)
+        self.sender_email = os.environ.get('SES_SENDER_EMAIL', 'noreply@the-algo.com')
         self.admin_email = os.environ.get('ADMIN_EMAIL', 'piyoosh.rai@the-algo.com')
 
     def send_technical_report(
@@ -221,40 +212,44 @@ Contact: {self.admin_email}
         html_attachment: Optional[str] = None
     ) -> bool:
         """
-        Internal method to send email
+        Internal method to send email via Amazon SES
 
         Args:
             to_email: Recipient email
             subject: Email subject
             body: Email body (plain text)
-            html_attachment: Optional HTML content to attach
+            html_attachment: Optional HTML content (not as attachment, as HTML email body)
 
         Returns:
             True if sent successfully
         """
         try:
-            msg = MIMEMultipart()
-            msg['From'] = self.username
-            msg['To'] = to_email
-            msg['Subject'] = subject
+            # SES send_email for simple text emails
+            response = self.ses_client.send_email(
+                Source=self.sender_email,
+                Destination={
+                    'ToAddresses': [to_email]
+                },
+                Message={
+                    'Subject': {
+                        'Data': subject,
+                        'Charset': 'UTF-8'
+                    },
+                    'Body': {
+                        'Text': {
+                            'Data': body,
+                            'Charset': 'UTF-8'
+                        }
+                    }
+                }
+            )
 
-            # Add body
-            msg.attach(MIMEText(body, 'plain'))
-
-            # Add HTML attachment if provided
-            if html_attachment:
-                html_part = MIMEApplication(html_attachment.encode(), _subtype='html')
-                html_part.add_header('Content-Disposition', 'attachment', filename='detailed_report.html')
-                msg.attach(html_part)
-
-            # Send email
-            with smtplib.SMTP(self.host, self.port) as server:
-                server.starttls()
-                server.login(self.username, self.password)
-                server.send_message(msg)
-
+            print(f"Email sent! Message ID: {response['MessageId']}")
             return True
 
+        except ClientError as e:
+            print(f"Error sending email: {e.response['Error']['Message']}")
+            return False
         except Exception as e:
             print(f"Error sending email: {e}")
             return False
