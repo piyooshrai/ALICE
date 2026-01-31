@@ -198,8 +198,39 @@ def verify_api_key():
         session.close()
 
 
-# Vercel serverless handler
-def handler(request):
-    """Vercel serverless function handler"""
-    with app.request_context(request.environ):
-        return app.full_dispatch_request()
+# CORS middleware wrapper for Vercel
+class CORSMiddleware:
+    def __init__(self, app):
+        self.app = app
+
+    def __call__(self, environ, start_response):
+        # Handle OPTIONS request at WSGI level
+        if environ['REQUEST_METHOD'] == 'OPTIONS':
+            headers = [
+                ('Access-Control-Allow-Origin', '*'),
+                ('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'),
+                ('Access-Control-Allow-Headers', 'Content-Type, X-API-Key, X-Admin-Key'),
+                ('Access-Control-Max-Age', '3600'),
+                ('Content-Type', 'text/plain'),
+                ('Content-Length', '0')
+            ]
+            start_response('200 OK', headers)
+            return [b'']
+
+        # For non-OPTIONS, wrap the response
+        def custom_start_response(status, headers, exc_info=None):
+            # Add CORS headers to all responses
+            cors_headers = [
+                ('Access-Control-Allow-Origin', '*'),
+                ('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'),
+                ('Access-Control-Allow-Headers', 'Content-Type, X-API-Key, X-Admin-Key'),
+                ('X-ALICE-Build', BUILD_TIMESTAMP)
+            ]
+            # Merge with existing headers
+            all_headers = headers + cors_headers
+            return start_response(status, all_headers, exc_info)
+
+        return self.app(environ, custom_start_response)
+
+# Wrap Flask app with CORS middleware
+app.wsgi_app = CORSMiddleware(app.wsgi_app)
