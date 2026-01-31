@@ -186,10 +186,9 @@ def analyze_endpoint():
 
     # Get project from API key
     session = db_manager.get_session()
-    encryption = EncryptionManager()
 
     try:
-        api_key_hash = encryption.hash_api_key(api_key)
+        api_key_hash = EncryptionManager.hash_api_key(api_key)
         project = session.query(Project).filter_by(api_key_hash=api_key_hash).first()
 
         if not project:
