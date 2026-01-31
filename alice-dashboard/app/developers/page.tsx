@@ -6,7 +6,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { api, Developer } from '@/lib/api'
+import { api, Developer } from '@/lib/api-client'
 import { getGradeColor, getRoleLevelColor, getTrendIndicator, getTrendColor } from '@/lib/utils'
 
 export default function DevelopersPage() {
@@ -23,7 +23,25 @@ export default function DevelopersPage() {
   const loadDevelopers = async () => {
     try {
       setLoading(true)
-      const data = await api.getDevelopers(sortBy, sortOrder)
+      let data = await api.getDevelopers()
+
+      // Client-side sorting
+      data = data.sort((a, b) => {
+        if (sortBy === 'name') {
+          return sortOrder === 'asc'
+            ? a.name.localeCompare(b.name)
+            : b.name.localeCompare(a.name)
+        } else if (sortBy === 'score') {
+          return sortOrder === 'asc'
+            ? a.current_score - b.current_score
+            : b.current_score - a.current_score
+        } else { // grade
+          return sortOrder === 'asc'
+            ? a.current_grade.localeCompare(b.current_grade)
+            : b.current_grade.localeCompare(a.current_grade)
+        }
+      })
+
       setDevelopers(data)
     } catch (err) {
       setError('Failed to load developers')
