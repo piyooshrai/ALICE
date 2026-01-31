@@ -162,7 +162,7 @@ def analyze_codebase(archive_path: str, project_id: str, developer_email: str = 
         shutil.rmtree(temp_dir, ignore_errors=True)
 
 
-@app.route('/api/analyze', methods=['POST'])
+@app.route('/api/analyze', methods=['POST', 'OPTIONS'])
 def analyze_endpoint():
     """
     Main analysis endpoint
@@ -170,6 +170,10 @@ def analyze_endpoint():
     Accepts: multipart/form-data with code archive
     Returns: Technical report only (no grades)
     """
+    # Handle preflight request
+    if request.method == 'OPTIONS':
+        return '', 200
+
     # Verify API key
     api_key = request.headers.get('X-API-Key')
     if not api_key:
