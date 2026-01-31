@@ -36,7 +36,7 @@ def generate_api_key() -> str:
     return f"alice_{secrets.token_urlsafe(32)}"
 
 
-@app.route('/api/projects', methods=['POST'])
+@app.route('/api/projects', methods=['POST', 'OPTIONS'])
 def create_project():
     """
     Create new project and generate API key
@@ -54,6 +54,18 @@ def create_project():
             "name": "Project Name"
         }
     """
+    # Handle OPTIONS preflight
+    if request.method == 'OPTIONS':
+        response = make_response('', 204)
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        response.headers['Access-Control-Allow-Methods'] = 'POST, OPTIONS'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type, X-API-Key, X-Admin-Key'
+        response.headers['Access-Control-Max-Age'] = '3600'
+        print(f"🟢 OPTIONS request handled - Build: {BUILD_TIMESTAMP}")
+        return response
+
+    print(f"🟢 POST request received - Build: {BUILD_TIMESTAMP}")
+
     # Verify admin key
     admin_key = request.json.get('admin_key')
     expected_admin_key = os.environ.get('ADMIN_API_KEY')
@@ -82,6 +94,8 @@ def create_project():
         session.add(project)
         session.commit()
 
+        print(f"🟢 Project created successfully: {project.name}")
+
         return jsonify({
             'project_id': str(project.id),
             'api_key': api_key,
@@ -92,6 +106,7 @@ def create_project():
 
     except Exception as e:
         session.rollback()
+        print(f"🔴 Error creating project: {str(e)}")
         return jsonify({'error': f'Failed to create project: {str(e)}'}), 500
 
     finally:
