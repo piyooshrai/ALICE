@@ -23,17 +23,16 @@ export default function ProjectsPage() {
 
     console.log('🔵 ALICE Dashboard - Build timestamp:', new Date().toISOString())
     console.log('🔵 Creating project:', projectName)
-    console.log('🔵 API endpoint:', 'https://alice-server-pvhl.vercel.app/api/projects')
+    console.log('🔵 API endpoint:', '/api/projects')
 
     try {
-      const response = await fetch('https://alice-server-pvhl.vercel.app/api/projects', {
+      const response = await fetch('/api/projects', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           name: projectName,
-          admin_key: process.env.NEXT_PUBLIC_ADMIN_KEY || '',
         }),
       })
 
