@@ -171,6 +171,58 @@ def list_projects():
         session.close()
 
 
+@app.route('/api/projects/<project_id>', methods=['DELETE', 'OPTIONS'])
+def delete_project(project_id: str):
+    """
+    Delete a project (admin only)
+
+    Requires admin key in header: X-Admin-Key
+    """
+    # Handle OPTIONS preflight
+    if request.method == 'OPTIONS':
+        response = make_response('', 200)
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        response.headers.add('Access-Control-Allow-Methods', 'DELETE, OPTIONS')
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type, X-Admin-Key')
+        response.headers.add('Access-Control-Max-Age', '3600')
+        return response
+
+    # Verify admin key
+    admin_key = request.headers.get('X-Admin-Key')
+    expected_admin_key = os.environ.get('ADMIN_API_KEY')
+
+    if not admin_key or admin_key != expected_admin_key:
+        return jsonify({'error': 'Unauthorized - invalid admin key'}), 401
+
+    session = db_manager.get_session()
+
+    try:
+        project = session.query(Project).filter_by(id=project_id).first()
+
+        if not project:
+            return jsonify({'error': 'Project not found'}), 404
+
+        project_name = project.name
+        session.delete(project)
+        session.commit()
+
+        print(f"🟢 Project deleted successfully: {project_name}")
+
+        return jsonify({
+            'message': 'Project deleted successfully',
+            'project_id': project_id,
+            'name': project_name
+        }), 200
+
+    except Exception as e:
+        session.rollback()
+        print(f"🔴 Error deleting project: {str(e)}")
+        return jsonify({'error': f'Failed to delete project: {str(e)}'}), 500
+
+    finally:
+        session.close()
+
+
 @app.route('/api/projects/<project_id>/regenerate-key', methods=['POST'])
 def regenerate_api_key(project_id: str):
     """

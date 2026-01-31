@@ -99,6 +99,29 @@ export default function ProjectsPage() {
     setTimeout(() => setCopiedKey(null), 2000)
   }
 
+  const deleteProject = async (projectId: string, projectName: string) => {
+    if (!confirm(`Are you sure you want to delete "${projectName}"? This cannot be undone.`)) {
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/projects?id=${projectId}`, {
+        method: 'DELETE',
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || 'Failed to delete project')
+      }
+
+      // Remove from local state
+      setProjects(projects.filter(p => p.id !== projectId))
+    } catch (err) {
+      console.error('🔴 Error deleting project:', err)
+      alert(err instanceof Error ? err.message : 'Failed to delete project')
+    }
+  }
+
   return (
     <div className="space-y-6 sm:space-y-8 lg:space-y-12">
       {/* Header */}
@@ -173,6 +196,13 @@ export default function ProjectsPage() {
                       Created {new Date(project.created_at).toLocaleDateString()}
                     </p>
                   </div>
+                  <button
+                    onClick={() => deleteProject(project.id, project.name)}
+                    className="bg-red-900/20 hover:bg-red-900/30 text-red-400 px-3 py-1.5 rounded text-sm transition-colors"
+                    title="Delete project"
+                  >
+                    Delete
+                  </button>
                 </div>
 
                 <div>

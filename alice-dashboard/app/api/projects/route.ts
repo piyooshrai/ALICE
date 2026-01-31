@@ -89,3 +89,40 @@ export async function POST(request: NextRequest) {
     )
   }
 }
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url)
+    const projectId = searchParams.get('id')
+
+    if (!projectId) {
+      return NextResponse.json(
+        { error: 'Project ID required' },
+        { status: 400 }
+      )
+    }
+
+    const serverUrl = process.env.ALICE_SERVER_URL || 'https://alice-server-fawn.vercel.app'
+
+    const response = await fetch(`${serverUrl}/api/projects/${projectId}`, {
+      method: 'DELETE',
+      headers: {
+        'X-Admin-Key': process.env.ADMIN_API_KEY || '',
+      },
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      return NextResponse.json(data, { status: response.status })
+    }
+
+    return NextResponse.json(data, { status: response.status })
+  } catch (error) {
+    console.error('🔴 Error deleting project:', error)
+    return NextResponse.json(
+      { error: 'Failed to delete project', details: error instanceof Error ? error.message : 'Unknown error' },
+      { status: 500 }
+    )
+  }
+}
