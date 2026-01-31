@@ -32,6 +32,15 @@ app = Flask(__name__)
 db_manager = DatabaseManager(os.environ.get('DATABASE_URL', 'postgresql://localhost/alice'))
 
 
+@app.after_request
+def add_cors_headers(response):
+    """Add CORS headers to all responses"""
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type, X-API-Key, X-Admin-Key'
+    return response
+
+
 def analyze_codebase(archive_path: str, project_id: str, developer_email: str = None) -> Dict[str, Any]:
     """
     Analyze uploaded code archive
