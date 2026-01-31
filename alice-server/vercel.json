@@ -39,15 +39,5 @@
       "src": "/api/analyses/(.*)",
       "dest": "api/reports.py"
     }
-  ],
-  "env": {
-    "DATABASE_URL": "@database-url",
-    "ENCRYPTION_KEY": "@encryption-key",
-    "EMAIL_HOST": "@email-host",
-    "EMAIL_PORT": "@email-port",
-    "EMAIL_USER_B64": "@email-user-b64",
-    "EMAIL_PASS_ENCRYPTED": "@email-pass-encrypted",
-    "ADMIN_EMAIL": "@admin-email",
-    "ADMIN_API_KEY": "@admin-api-key"
-  }
+  ]
 }
