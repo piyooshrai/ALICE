@@ -153,7 +153,7 @@ export default function ProjectsPage() {
                       type="text"
                       value={project.api_key}
                       readOnly
-                      className="flex-1 bg-black border border-zinc-700 rounded px-4 py-2 font-mono text-sm"
+                      className="flex-1 bg-black border border-zinc-700 rounded px-4 py-2 font-mono text-sm text-white"
                     />
                     <button
                       onClick={() => copyToClipboard(project.api_key)}

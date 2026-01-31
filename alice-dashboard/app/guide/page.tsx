@@ -19,7 +19,7 @@ export default function DeveloperGuidePage() {
         <div className="space-y-4">
           <div>
             <p className="text-sm text-text-secondary mb-2">Install ALICE SDK globally:</p>
-            <pre className="bg-black border border-zinc-700 rounded p-4 text-sm font-mono overflow-x-auto">
+            <pre className="bg-black border border-zinc-700 rounded p-4 text-sm font-mono overflow-x-auto text-white">
 npm install -g @the-algo/alice
             </pre>
           </div>
@@ -33,7 +33,7 @@ npm install -g @the-algo/alice
           <p className="text-text-secondary">
             Run this once in your project directory to configure ALICE:
           </p>
-          <pre className="bg-black border border-zinc-700 rounded p-4 text-sm font-mono overflow-x-auto">
+          <pre className="bg-black border border-zinc-700 rounded p-4 text-sm font-mono overflow-x-auto text-white">
 alice init
           </pre>
           <p className="text-text-secondary text-sm">
@@ -54,7 +54,7 @@ alice init
           <p className="text-text-secondary">
             For React, Vue, Angular, or any frontend JavaScript/TypeScript project:
           </p>
-          <pre className="bg-black border border-zinc-700 rounded p-4 text-sm font-mono overflow-x-auto">
+          <pre className="bg-black border border-zinc-700 rounded p-4 text-sm font-mono overflow-x-auto text-white">
 alice analyze --type frontend
           </pre>
           <div className="text-sm text-text-secondary space-y-2">
@@ -78,7 +78,7 @@ alice analyze --type frontend
           <p className="text-text-secondary">
             For Node.js, Python, Java, Go, or any backend service:
           </p>
-          <pre className="bg-black border border-zinc-700 rounded p-4 text-sm font-mono overflow-x-auto">
+          <pre className="bg-black border border-zinc-700 rounded p-4 text-sm font-mono overflow-x-auto text-white">
 alice analyze --type backend
           </pre>
           <div className="text-sm text-text-secondary space-y-2">
@@ -102,7 +102,7 @@ alice analyze --type backend
           <p className="text-text-secondary">
             For React Native, Flutter, Swift, or Kotlin projects:
           </p>
-          <pre className="bg-black border border-zinc-700 rounded p-4 text-sm font-mono overflow-x-auto">
+          <pre className="bg-black border border-zinc-700 rounded p-4 text-sm font-mono overflow-x-auto text-white">
 alice analyze --type mobile
           </pre>
           <div className="text-sm text-text-secondary space-y-2">
