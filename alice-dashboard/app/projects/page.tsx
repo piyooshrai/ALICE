@@ -75,19 +75,19 @@ export default function ProjectsPage() {
   }
 
   return (
-    <div className="space-y-12">
+    <div className="space-y-6 sm:space-y-8 lg:space-y-12">
       {/* Header */}
       <div>
-        <h2 className="text-3xl font-bold tracking-tight text-text-primary">
+        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-text-primary">
           Project Management
         </h2>
-        <p className="text-text-secondary mt-2">
+        <p className="text-sm sm:text-base text-text-secondary mt-2">
           Create projects and manage API keys for your development teams
         </p>
       </div>
 
       {/* Create Project Form */}
-      <div className="bg-surface border border-border rounded-lg p-6">
+      <div className="bg-surface border border-border rounded-lg p-4 sm:p-6">
         <h3 className="text-xl font-semibold mb-4">Create New Project</h3>
 
         <form onSubmit={createProject} className="space-y-4">
@@ -148,16 +148,16 @@ export default function ProjectsPage() {
 
                 <div>
                   <label className="block text-sm text-text-secondary mb-2">API Key</label>
-                  <div className="flex gap-2">
+                  <div className="flex flex-col sm:flex-row gap-2">
                     <input
                       type="text"
                       value={project.api_key}
                       readOnly
-                      className="flex-1 bg-black border border-zinc-700 rounded px-4 py-2 font-mono text-sm text-white"
+                      className="flex-1 bg-black border border-zinc-700 rounded px-3 sm:px-4 py-2 font-mono text-xs sm:text-sm text-white overflow-x-auto"
                     />
                     <button
                       onClick={() => copyToClipboard(project.api_key)}
-                      className="bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded text-sm transition-colors"
+                      className="bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded text-sm transition-colors whitespace-nowrap"
                     >
                       {copiedKey === project.api_key ? 'Copied!' : 'Copy'}
                     </button>
