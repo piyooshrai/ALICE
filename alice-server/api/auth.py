@@ -7,21 +7,10 @@ import os
 import secrets
 from datetime import datetime
 from flask import Flask, request, jsonify, make_response
-from flask_cors import CORS
 from database.models import DatabaseManager, Project
 from utils.encryption import EncryptionManager
 
 app = Flask(__name__)
-
-# Enable CORS for all routes
-CORS(app, resources={
-    r"/api/*": {
-        "origins": "*",
-        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-        "allow_headers": ["Content-Type", "X-API-Key", "X-Admin-Key"],
-        "max_age": 3600
-    }
-})
 
 # Build timestamp for debugging
 BUILD_TIMESTAMP = datetime.utcnow().isoformat()
@@ -29,6 +18,15 @@ BUILD_TIMESTAMP = datetime.utcnow().isoformat()
 # Initialize database
 db_manager = DatabaseManager(os.environ.get('DATABASE_URL', 'postgresql://localhost/alice'))
 encryption = EncryptionManager()
+
+
+@app.after_request
+def add_cors_headers(response):
+    """Add CORS headers to all responses"""
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type, X-API-Key, X-Admin-Key')
+    return response
 
 
 def generate_api_key() -> str:
@@ -56,12 +54,13 @@ def create_project():
     """
     # Handle OPTIONS preflight
     if request.method == 'OPTIONS':
-        response = make_response('', 204)
-        response.headers['Access-Control-Allow-Origin'] = '*'
-        response.headers['Access-Control-Allow-Methods'] = 'POST, OPTIONS'
-        response.headers['Access-Control-Allow-Headers'] = 'Content-Type, X-API-Key, X-Admin-Key'
-        response.headers['Access-Control-Max-Age'] = '3600'
-        print(f"🟢 OPTIONS request handled - Build: {BUILD_TIMESTAMP}")
+        print(f"🟢 OPTIONS request received - Build: {BUILD_TIMESTAMP}")
+        response = make_response('', 200)
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        response.headers.add('Access-Control-Allow-Methods', 'POST, OPTIONS')
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
+        response.headers.add('Access-Control-Max-Age', '3600')
+        print(f"🟢 OPTIONS response headers: {dict(response.headers)}")
         return response
 
     print(f"🟢 POST request received - Build: {BUILD_TIMESTAMP}")
