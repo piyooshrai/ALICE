@@ -20,8 +20,29 @@ export async function POST(request: NextRequest) {
     })
 
     console.log('🟦 alice-server response status:', response.status)
+    console.log('🟦 alice-server response headers:', response.headers.get('content-type'))
 
-    const data = await response.json()
+    // Get response as text first to handle non-JSON responses
+    const responseText = await response.text()
+    console.log('🟦 alice-server response text (first 500 chars):', responseText.substring(0, 500))
+
+    // Try to parse as JSON
+    let data
+    try {
+      data = JSON.parse(responseText)
+    } catch (e) {
+      // If it's not JSON, it's likely an HTML error page from Vercel
+      console.error('🔴 alice-server returned non-JSON response')
+      return NextResponse.json(
+        {
+          error: 'alice-server deployment error',
+          details: 'Server returned HTML instead of JSON',
+          html_preview: responseText.substring(0, 1000)
+        },
+        { status: 500 }
+      )
+    }
+
     console.log('🟦 alice-server response data:', data)
 
     if (!response.ok) {
