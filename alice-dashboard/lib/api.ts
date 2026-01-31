@@ -247,9 +247,141 @@ class APIClient {
     const developer = mockDevelopers.find(d => d.id === developerId)
     if (!developer) throw new Error('Developer not found')
 
+    // Generate developer-specific history based on their grade and trend
+    let history: Analysis[] = []
+
+    if (developerId === '1') {
+      // Sarah Chen - A+ Senior (Improving)
+      history = [
+        {
+          id: 'h1-1',
+          grade: 'A+',
+          quality_score: 96,
+          role_level: 'Senior',
+          deployment_status: 'APPROVED',
+          total_files: 48,
+          critical_bugs: 0,
+          high_bugs: 0,
+          medium_bugs: 1,
+          strengths: ['Excellent TypeScript usage', 'Strong security practices', 'Great accessibility', 'Clean architecture'],
+          weaknesses: ['Could add more unit tests'],
+          analyzed_at: '2024-03-15T14:30:00Z'
+        },
+        {
+          id: 'h1-2',
+          grade: 'A',
+          quality_score: 94,
+          role_level: 'Senior',
+          deployment_status: 'APPROVED',
+          total_files: 42,
+          critical_bugs: 0,
+          high_bugs: 0,
+          medium_bugs: 2,
+          strengths: ['Excellent error handling', 'Strong TypeScript', 'Good performance'],
+          weaknesses: ['Minor accessibility improvements needed'],
+          analyzed_at: '2024-03-10T11:20:00Z'
+        },
+        {
+          id: 'h1-3',
+          grade: 'A',
+          quality_score: 92,
+          role_level: 'Senior',
+          deployment_status: 'APPROVED',
+          total_files: 38,
+          critical_bugs: 0,
+          high_bugs: 1,
+          medium_bugs: 2,
+          strengths: ['Clean code', 'Good documentation', 'Proper error handling'],
+          weaknesses: ['Some performance optimizations possible'],
+          analyzed_at: '2024-03-05T09:15:00Z'
+        }
+      ]
+    } else if (developerId === '2') {
+      // Marcus Johnson - A Senior (Stable)
+      history = [
+        {
+          id: 'h2-1',
+          grade: 'A',
+          quality_score: 92,
+          role_level: 'Senior',
+          deployment_status: 'APPROVED',
+          total_files: 35,
+          critical_bugs: 0,
+          high_bugs: 1,
+          medium_bugs: 3,
+          strengths: ['Solid architecture', 'Good error handling', 'Clean code'],
+          weaknesses: ['Could improve accessibility', 'Add more comments'],
+          analyzed_at: '2024-03-14T16:45:00Z'
+        },
+        {
+          id: 'h2-2',
+          grade: 'A',
+          quality_score: 91,
+          role_level: 'Senior',
+          deployment_status: 'APPROVED',
+          total_files: 32,
+          critical_bugs: 0,
+          high_bugs: 1,
+          medium_bugs: 3,
+          strengths: ['Consistent quality', 'Good practices', 'Proper testing'],
+          weaknesses: ['Performance could be better'],
+          analyzed_at: '2024-03-08T13:30:00Z'
+        }
+      ]
+    } else if (developerId === '6') {
+      // David Kim - D Entry-Level (Declining)
+      history = [
+        {
+          id: 'h6-1',
+          grade: 'D',
+          quality_score: 52,
+          role_level: 'Entry-Level',
+          deployment_status: 'BLOCKED',
+          total_files: 18,
+          critical_bugs: 3,
+          high_bugs: 5,
+          medium_bugs: 8,
+          strengths: ['Code submitted for review'],
+          weaknesses: ['Critical security issues', 'No error handling', 'High complexity', 'Missing accessibility'],
+          analyzed_at: '2024-03-15T10:20:00Z'
+        },
+        {
+          id: 'h6-2',
+          grade: 'C',
+          quality_score: 65,
+          role_level: 'Entry-Level',
+          deployment_status: 'CAUTION',
+          total_files: 15,
+          critical_bugs: 1,
+          high_bugs: 4,
+          medium_bugs: 6,
+          strengths: ['Basic functionality works', 'Some error handling'],
+          weaknesses: ['Security vulnerabilities', 'Poor code organization', 'No tests'],
+          analyzed_at: '2024-03-08T14:15:00Z'
+        },
+        {
+          id: 'h6-3',
+          grade: 'C+',
+          quality_score: 70,
+          role_level: 'Junior',
+          deployment_status: 'CAUTION',
+          total_files: 12,
+          critical_bugs: 0,
+          high_bugs: 3,
+          medium_bugs: 5,
+          strengths: ['Code compiles', 'Basic structure'],
+          weaknesses: ['Missing error handling', 'No accessibility', 'Poor performance'],
+          analyzed_at: '2024-03-01T11:00:00Z'
+        }
+      ]
+    } else {
+      // Default history for other developers
+      history = mockAnalyses.slice(0, 3)
+    }
+
     return {
       developer,
-      history: mockAnalyses.slice(0, 3),
+      history,
       total_analyses: developer.analysis_count
     }
   }
