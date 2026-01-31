@@ -10,7 +10,7 @@ import zipfile
 import shutil
 from datetime import datetime
 from typing import Dict, Any, List
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, make_response
 from pathlib import Path
 
 # Import analyzers
@@ -36,7 +36,7 @@ db_manager = DatabaseManager(os.environ.get('DATABASE_URL', 'postgresql://localh
 def handle_preflight():
     """Handle OPTIONS preflight requests"""
     if request.method == 'OPTIONS':
-        response = jsonify({'status': 'ok'})
+        response = make_response('', 200)
         response.headers['Access-Control-Allow-Origin'] = '*'
         response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
         response.headers['Access-Control-Allow-Headers'] = 'Content-Type, X-API-Key, X-Admin-Key'
