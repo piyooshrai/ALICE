@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 interface Project {
   id: string
@@ -15,6 +15,31 @@ export default function ProjectsPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [copiedKey, setCopiedKey] = useState<string | null>(null)
+  const [fetchingProjects, setFetchingProjects] = useState(true)
+
+  // Fetch projects on mount
+  useEffect(() => {
+    fetchProjects()
+  }, [])
+
+  const fetchProjects = async () => {
+    try {
+      setFetchingProjects(true)
+      const response = await fetch('/api/projects')
+
+      if (!response.ok) {
+        console.error('Failed to fetch projects:', response.status)
+        return
+      }
+
+      const data = await response.json()
+      setProjects(data)
+    } catch (error) {
+      console.error('Error fetching projects:', error)
+    } finally {
+      setFetchingProjects(false)
+    }
+  }
 
   const createProject = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -126,7 +151,11 @@ export default function ProjectsPage() {
       <div>
         <h3 className="text-xl font-semibold mb-4">Active Projects</h3>
 
-        {projects.length === 0 ? (
+        {fetchingProjects ? (
+          <div className="bg-surface border border-border rounded-lg p-12 text-center">
+            <p className="text-text-secondary">Loading projects...</p>
+          </div>
+        ) : projects.length === 0 ? (
           <div className="bg-surface border border-border rounded-lg p-12 text-center">
             <p className="text-text-secondary">No projects yet. Create your first project above.</p>
           </div>

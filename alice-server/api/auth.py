@@ -111,6 +111,66 @@ def create_project():
         session.close()
 
 
+@app.route('/api/projects', methods=['GET', 'OPTIONS'])
+def list_projects():
+    """
+    List all projects (admin only)
+
+    Requires admin key in header: X-Admin-Key
+
+    Returns:
+        [
+            {
+                "id": "uuid",
+                "name": "Project Name",
+                "api_key": "alice_xxxxx",
+                "created_at": "2026-01-31T..."
+            },
+            ...
+        ]
+    """
+    # Handle OPTIONS preflight
+    if request.method == 'OPTIONS':
+        response = make_response('', 200)
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        response.headers.add('Access-Control-Allow-Methods', 'GET, OPTIONS')
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type, X-Admin-Key')
+        response.headers.add('Access-Control-Max-Age', '3600')
+        return response
+
+    # Verify admin key
+    admin_key = request.headers.get('X-Admin-Key')
+    if not admin_key:
+        admin_key = request.args.get('admin_key')
+
+    expected_admin_key = os.environ.get('ADMIN_API_KEY')
+
+    if not admin_key or admin_key != expected_admin_key:
+        return jsonify({'error': 'Unauthorized - invalid admin key'}), 401
+
+    session = db_manager.get_session()
+
+    try:
+        projects = session.query(Project).order_by(Project.created_at.desc()).all()
+
+        return jsonify([
+            {
+                'id': str(project.id),
+                'name': project.name,
+                'api_key': project.api_key,
+                'created_at': project.created_at.isoformat()
+            }
+            for project in projects
+        ]), 200
+
+    except Exception as e:
+        print(f"🔴 Error fetching projects: {str(e)}")
+        return jsonify({'error': f'Failed to fetch projects: {str(e)}'}), 500
+
+    finally:
+        session.close()
+
+
 @app.route('/api/projects/<project_id>/regenerate-key', methods=['POST'])
 def regenerate_api_key(project_id: str):
     """
