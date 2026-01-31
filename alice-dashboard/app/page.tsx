@@ -6,7 +6,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { api, DashboardStats } from '@/lib/api'
+import { api, DashboardStats } from '@/lib/api-client'
 import MetricCard from '@/components/MetricCard'
 import AnalysisTable from '@/components/AnalysisTable'
 

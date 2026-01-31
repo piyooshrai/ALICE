@@ -16,6 +16,8 @@ export default function ProjectsPage() {
   const [error, setError] = useState('')
   const [copiedKey, setCopiedKey] = useState<string | null>(null)
   const [fetchingProjects, setFetchingProjects] = useState(true)
+  const [sendingTestEmail, setSendingTestEmail] = useState(false)
+  const [testEmailResult, setTestEmailResult] = useState<string>('')
 
   // Fetch projects on mount
   useEffect(() => {
@@ -122,6 +124,34 @@ export default function ProjectsPage() {
     }
   }
 
+  const sendTestEmails = async () => {
+    setSendingTestEmail(true)
+    setTestEmailResult('')
+
+    try {
+      const response = await fetch('/api/test-email', {
+        method: 'POST',
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to send test emails')
+      }
+
+      if (data.success) {
+        setTestEmailResult(`✅ Test emails sent to ${data.recipient}! Check your inbox for:\n1. Technical Report\n2. Management Assessment`)
+      } else {
+        setTestEmailResult(`⚠️ Partial success:\n- Technical Report: ${data.technical_report}\n- Management Assessment: ${data.management_assessment}`)
+      }
+    } catch (err) {
+      console.error('🔴 Error sending test emails:', err)
+      setTestEmailResult(`❌ Error: ${err instanceof Error ? err.message : 'Failed to send test emails'}`)
+    } finally {
+      setSendingTestEmail(false)
+    }
+  }
+
   return (
     <div className="space-y-6 sm:space-y-8 lg:space-y-12">
       {/* Header */}
@@ -168,6 +198,34 @@ export default function ProjectsPage() {
             {loading ? 'Creating...' : 'Create Project'}
           </button>
         </form>
+      </div>
+
+      {/* Test Email Section */}
+      <div className="bg-surface border border-border rounded-lg p-4 sm:p-6">
+        <h3 className="text-xl font-semibold mb-2">Test Email Delivery</h3>
+        <p className="text-sm text-text-secondary mb-4">
+          Send sample analysis emails to piyoosh.rai@the-algo.com to verify AWS SES configuration
+        </p>
+
+        <button
+          onClick={sendTestEmails}
+          disabled={sendingTestEmail}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        >
+          {sendingTestEmail ? 'Sending...' : 'Send Test Emails'}
+        </button>
+
+        {testEmailResult && (
+          <div className={`mt-4 rounded px-4 py-3 text-sm whitespace-pre-line ${
+            testEmailResult.startsWith('✅')
+              ? 'bg-green-900/20 border border-green-900 text-green-400'
+              : testEmailResult.startsWith('⚠️')
+              ? 'bg-yellow-900/20 border border-yellow-900 text-yellow-400'
+              : 'bg-red-900/20 border border-red-900 text-red-400'
+          }`}>
+            {testEmailResult}
+          </div>
+        )}
       </div>
 
       {/* Projects List */}
