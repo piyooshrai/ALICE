@@ -12,7 +12,7 @@ from utils.encryption import EncryptionManager
 
 app = Flask(__name__)
 
-# Build timestamp for debugging
+# Build timestamp for debugging - Force redeploy v1.1
 BUILD_TIMESTAMP = datetime.utcnow().isoformat()
 
 # Initialize database
