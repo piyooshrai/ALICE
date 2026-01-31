@@ -32,6 +32,18 @@ app = Flask(__name__)
 db_manager = DatabaseManager(os.environ.get('DATABASE_URL', 'postgresql://localhost/alice'))
 
 
+@app.before_request
+def handle_preflight():
+    """Handle OPTIONS preflight requests"""
+    if request.method == 'OPTIONS':
+        response = jsonify({'status': 'ok'})
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type, X-API-Key, X-Admin-Key'
+        response.headers['Access-Control-Max-Age'] = '3600'
+        return response
+
+
 @app.after_request
 def add_cors_headers(response):
     """Add CORS headers to all responses"""
