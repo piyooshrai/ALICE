@@ -61,6 +61,12 @@ export default function RootLayout({
                     Projects
                   </a>
                   <a
+                    href="/guide"
+                    className="text-sm font-medium text-text-secondary hover:text-text-primary transition-colors duration-200"
+                  >
+                    Developer Guide
+                  </a>
+                  <a
                     href="/analytics"
                     className="text-sm font-medium text-text-secondary hover:text-text-primary transition-colors duration-200"
                   >
