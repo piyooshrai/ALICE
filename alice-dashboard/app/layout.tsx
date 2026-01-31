@@ -12,6 +12,18 @@ import './globals.css'
 export const metadata: Metadata = {
   title: 'ALICE Dashboard',
   description: 'Automated Logic Inspection & Code Evaluation',
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'ALICE',
+  },
+  themeColor: '#000000',
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+  },
 }
 
 export default function RootLayout({
