@@ -1,52 +1,44 @@
-# Fix Vercel 404 Error
+# Fix Vercel Deployment
 
-## The Problem
+## Configure Vercel Settings
 
-Your repo is a monorepo with multiple projects:
-```
-ALICE/
-├── alice-dashboard/  ← Next.js app (should be deployed)
-├── alice-server/     ← Python backend
-└── alice-sdk/        ← CLI tool
-```
+Go to: **Vercel Dashboard → Your Project → Settings → Build & Development**
 
-**Vercel is looking for Next.js at the repo root, but it's in `alice-dashboard/`**
+### 1. Root Directory
+Set to: `alice-dashboard`
+(You already did this ✓)
 
-## The Fix - Configure Root Directory in Vercel
+### 2. Framework Preset
+**IMPORTANT**: Set to `Next.js`
+(Not "Other" or anything else)
 
-### Step 1: Go to Vercel Project Settings
+### 3. Build Settings
+Leave these EMPTY - Vercel auto-detects for Next.js:
+- Build Command: (empty)
+- Output Directory: (empty)
+- Install Command: (empty)
 
-1. Go to https://vercel.com/dashboard
-2. Click on your ALICE dashboard project
-3. Click **Settings** (top navigation)
+Vercel will automatically use:
+- Build Command: `npm run build`
+- Output Directory: `.next`
+- Install Command: `npm install`
 
-### Step 2: Set Root Directory
+### 4. Save and Redeploy
 
-1. Scroll to **Root Directory** section
-2. Click **Edit**
-3. Enter: `alice-dashboard`
-4. Click **Save**
+1. Click **Save** at the bottom
+2. Go to **Deployments** tab
+3. Click **Redeploy** on latest deployment
 
-### Step 3: Redeploy
+## Why This Fixes It
 
-1. Go to **Deployments** tab
-2. Click **Redeploy** on latest deployment
-3. Wait for build to complete
+Next.js 14 outputs to `.next/` directory, not `public/`. By setting Framework Preset to "Next.js", Vercel knows this and configures everything correctly.
 
-## That's It
+The "public directory" error means Vercel was treating your app as a static site instead of Next.js.
 
-Vercel will now:
-- Look for package.json in `alice-dashboard/`
-- Find the Next.js app
-- Build all routes correctly
-- No more 404 errors
+## After Deployment
 
-## Verify It Works
-
-After redeployment, these should all work:
-- https://your-app.vercel.app/
-- https://your-app.vercel.app/developers
-- https://your-app.vercel.app/analytics
-- https://your-app.vercel.app/projects
-
-All routes will return 200 OK with the dashboard UI.
+All routes should work:
+- /
+- /developers
+- /analytics
+- /projects
