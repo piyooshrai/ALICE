@@ -28,7 +28,6 @@ BUILD_TIMESTAMP = datetime.utcnow().isoformat()
 
 # Initialize database
 db_manager = DatabaseManager(os.environ.get('DATABASE_URL', 'postgresql://localhost/alice'))
-encryption = EncryptionManager()
 
 
 def verify_admin(request):

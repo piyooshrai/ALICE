@@ -17,7 +17,6 @@ BUILD_TIMESTAMP = datetime.utcnow().isoformat()
 
 # Initialize database
 db_manager = DatabaseManager(os.environ.get('DATABASE_URL', 'postgresql://localhost/alice'))
-encryption = EncryptionManager()
 
 
 @app.after_request
@@ -81,7 +80,7 @@ def create_project():
     try:
         # Generate API key
         api_key = generate_api_key()
-        api_key_hash = encryption.hash_api_key(api_key)
+        api_key_hash = EncryptionManager.hash_api_key(api_key)
 
         # Create project
         project = Project(
@@ -135,7 +134,7 @@ def regenerate_api_key(project_id: str):
 
         # Generate new API key
         new_api_key = generate_api_key()
-        new_api_key_hash = encryption.hash_api_key(new_api_key)
+        new_api_key_hash = EncryptionManager.hash_api_key(new_api_key)
 
         project.api_key = new_api_key
         project.api_key_hash = new_api_key_hash
@@ -171,7 +170,7 @@ def verify_api_key():
     session = db_manager.get_session()
 
     try:
-        api_key_hash = encryption.hash_api_key(api_key)
+        api_key_hash = EncryptionManager.hash_api_key(api_key)
         project = session.query(Project).filter_by(api_key_hash=api_key_hash).first()
 
         if not project:
