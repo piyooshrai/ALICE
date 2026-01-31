@@ -9,35 +9,94 @@
   "routes": [
     {
       "src": "/api/analyze",
-      "dest": "api/analyze.py"
+      "dest": "api/analyze.py",
+      "headers": {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, X-API-Key, X-Admin-Key"
+      }
     },
     {
       "src": "/api/projects",
-      "dest": "api/auth.py"
+      "dest": "api/auth.py",
+      "headers": {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, X-API-Key, X-Admin-Key"
+      }
     },
     {
       "src": "/api/projects/(.*)",
-      "dest": "api/auth.py"
+      "dest": "api/auth.py",
+      "headers": {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, X-API-Key, X-Admin-Key"
+      }
     },
     {
       "src": "/api/verify",
-      "dest": "api/auth.py"
+      "dest": "api/auth.py",
+      "headers": {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, X-API-Key, X-Admin-Key"
+      }
     },
     {
       "src": "/api/dashboard/(.*)",
-      "dest": "api/reports.py"
+      "dest": "api/reports.py",
+      "headers": {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, X-API-Key, X-Admin-Key"
+      }
     },
     {
       "src": "/api/developers",
-      "dest": "api/reports.py"
+      "dest": "api/reports.py",
+      "headers": {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, X-API-Key, X-Admin-Key"
+      }
     },
     {
       "src": "/api/developers/(.*)",
-      "dest": "api/reports.py"
+      "dest": "api/reports.py",
+      "headers": {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, X-API-Key, X-Admin-Key"
+      }
     },
     {
       "src": "/api/analyses/(.*)",
-      "dest": "api/reports.py"
+      "dest": "api/reports.py",
+      "headers": {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, X-API-Key, X-Admin-Key"
+      }
+    }
+  ],
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, POST, PUT, DELETE, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type, X-API-Key, X-Admin-Key"
+        }
+      ]
     }
   ]
 }
