@@ -1,10 +1,5 @@
 {
-  "framework": "nextjs",
   "buildCommand": "npm run build",
   "devCommand": "npm run dev",
-  "installCommand": "npm install",
-  "env": {
-    "API_BASE_URL": "@api-base-url",
-    "ADMIN_API_KEY": "@admin-api-key"
-  }
+  "installCommand": "npm install"
 }
