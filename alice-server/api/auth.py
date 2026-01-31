@@ -5,7 +5,7 @@ API key management and project creation
 
 import os
 import secrets
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, make_response
 from database.models import DatabaseManager, Project
 from utils.encryption import EncryptionManager
 
@@ -20,7 +20,7 @@ encryption = EncryptionManager()
 def handle_preflight():
     """Handle OPTIONS preflight requests"""
     if request.method == 'OPTIONS':
-        response = jsonify({'status': 'ok'})
+        response = make_response('', 200)
         response.headers['Access-Control-Allow-Origin'] = '*'
         response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
         response.headers['Access-Control-Allow-Headers'] = 'Content-Type, X-API-Key, X-Admin-Key'

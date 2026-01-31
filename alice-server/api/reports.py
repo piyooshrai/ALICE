@@ -4,7 +4,7 @@ Admin-only endpoints for viewing grades, assessments, and analytics
 """
 
 import os
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, make_response
 from sqlalchemy import func, desc
 from datetime import datetime, timedelta
 from database.models import DatabaseManager, Analysis, Developer, Project, Bug
@@ -21,7 +21,7 @@ encryption = EncryptionManager()
 def handle_preflight():
     """Handle OPTIONS preflight requests"""
     if request.method == 'OPTIONS':
-        response = jsonify({'status': 'ok'})
+        response = make_response('', 200)
         response.headers['Access-Control-Allow-Origin'] = '*'
         response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
         response.headers['Access-Control-Allow-Headers'] = 'Content-Type, X-API-Key, X-Admin-Key'
