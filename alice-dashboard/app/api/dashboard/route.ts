@@ -4,7 +4,7 @@ export async function GET(request: NextRequest) {
   try {
     const serverUrl = process.env.ALICE_SERVER_URL || 'https://alice-server-fawn.vercel.app'
 
-    const response = await fetch(`${serverUrl}/api/dashboard`, {
+    const response = await fetch(`${serverUrl}/api/dashboard/stats`, {
       method: 'GET',
       headers: {
         'X-Admin-Key': process.env.ADMIN_API_KEY || '',
