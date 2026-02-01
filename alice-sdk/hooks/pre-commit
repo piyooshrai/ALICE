@@ -1,0 +1,19 @@
+#!/bin/sh
+# ALICE Pre-commit Hook
+# Automatically analyzes code before each commit
+
+echo "🔍 Running ALICE code analysis..."
+
+alice analyze --silent
+
+if [ $? -ne 0 ]; then
+  echo ""
+  echo "❌ ALICE found critical issues that block this commit"
+  echo "📧 Check your email for detailed analysis"
+  echo ""
+  echo "Fix the issues and try committing again"
+  exit 1
+fi
+
+echo "✅ ALICE analysis passed"
+exit 0

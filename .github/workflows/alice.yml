@@ -1,0 +1,32 @@
+name: ALICE Code Analysis
+
+on:
+  push:
+    branches: [ main, develop, staging ]
+  pull_request:
+    branches: [ main, develop, staging ]
+
+jobs:
+  alice-analysis:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install ALICE
+        run: npm install -g alice-code-analysis
+
+      - name: Run ALICE Analysis
+        env:
+          ALICE_API_KEY: ${{ secrets.ALICE_API_KEY }}
+          ALICE_DEVELOPER_EMAIL: ${{ github.event.pusher.email }}
+          ALICE_DEVELOPER_NAME: ${{ github.event.pusher.name }}
+        run: |
+          alice init --non-interactive
+          alice analyze

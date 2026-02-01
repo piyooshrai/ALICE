@@ -1,6 +1,6 @@
 {
-  "name": "@the-algorithm/alice",
-  "version": "1.0.0",
+  "name": "alice-code-analysis",
+  "version": "1.1.0",
   "description": "ALICE SDK - Automated Logic Inspection & Code Evaluation CLI",
   "main": "src/cli.js",
   "bin": {
