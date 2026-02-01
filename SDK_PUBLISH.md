@@ -23,7 +23,7 @@ npm publish --access public
 ### 3. Verify Publication
 
 ```bash
-npm view @the-algorithm/alice
+npm view alice-code-analysis
 ```
 
 ## After Publishing
@@ -31,7 +31,7 @@ npm view @the-algorithm/alice
 Developers can install with:
 
 ```bash
-npm install -g @the-algorithm/alice
+npm install -g alice-code-analysis
 ```
 
 Then use:
@@ -53,7 +53,7 @@ alice analyze
 
 ## Current Package Details
 
-- Name: `@the-algorithm/alice`
+- Name: `alice-code-analysis`
 - Version: `1.0.0`
 - Main: `src/cli.js`
 - Binary: `alice` command

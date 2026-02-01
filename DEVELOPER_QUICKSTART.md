@@ -67,7 +67,7 @@ You'll receive an email with:
 Once published to NPM, you'll be able to install:
 
 ```bash
-npm install -g @the-algorithm/alice
+npm install -g alice-code-analysis
 
 # Then run
 alice analyze

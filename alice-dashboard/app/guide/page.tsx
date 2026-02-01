@@ -20,7 +20,7 @@ export default function DeveloperGuidePage() {
           <div>
             <p className="text-sm text-text-secondary mb-2">Install ALICE SDK globally:</p>
             <pre className="bg-black border border-zinc-700 rounded p-4 text-sm font-mono overflow-x-auto text-white">
-npm install -g @the-algo/alice
+npm install -g alice-code-analysis
             </pre>
           </div>
         </div>
