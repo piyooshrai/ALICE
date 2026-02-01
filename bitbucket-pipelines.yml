@@ -1,0 +1,44 @@
+image: node:18
+
+pipelines:
+  default:
+    - step:
+        name: ALICE Code Analysis
+        script:
+          - npm install -g alice-code-analysis
+          - export ALICE_DEVELOPER_EMAIL=$(git log -1 --format='%ae')
+          - export ALICE_DEVELOPER_NAME=$(git log -1 --format='%an')
+          - alice init --non-interactive
+          - alice analyze
+
+  branches:
+    main:
+      - step:
+          name: ALICE Code Analysis
+          script:
+            - npm install -g alice-code-analysis
+            - export ALICE_DEVELOPER_EMAIL=$(git log -1 --format='%ae')
+            - export ALICE_DEVELOPER_NAME=$(git log -1 --format='%an')
+            - alice init --non-interactive
+            - alice analyze
+
+    develop:
+      - step:
+          name: ALICE Code Analysis
+          script:
+            - npm install -g alice-code-analysis
+            - export ALICE_DEVELOPER_EMAIL=$(git log -1 --format='%ae')
+            - export ALICE_DEVELOPER_NAME=$(git log -1 --format='%an')
+            - alice init --non-interactive
+            - alice analyze
+
+  pull-requests:
+    '**':
+      - step:
+          name: ALICE Code Analysis
+          script:
+            - npm install -g alice-code-analysis
+            - export ALICE_DEVELOPER_EMAIL=$(git log -1 --format='%ae')
+            - export ALICE_DEVELOPER_NAME=$(git log -1 --format='%an')
+            - alice init --non-interactive
+            - alice analyze

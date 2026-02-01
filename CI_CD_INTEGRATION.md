@@ -82,6 +82,54 @@ alice_analysis:
 
 ---
 
+## Bitbucket Pipelines
+
+Add to `bitbucket-pipelines.yml`:
+
+```yaml
+image: node:18
+
+pipelines:
+  default:
+    - step:
+        name: ALICE Code Analysis
+        script:
+          - npm install -g alice-code-analysis
+          - export ALICE_DEVELOPER_EMAIL=$(git log -1 --format='%ae')
+          - export ALICE_DEVELOPER_NAME=$(git log -1 --format='%an')
+          - alice init --non-interactive
+          - alice analyze
+  branches:
+    main:
+      - step:
+          name: ALICE Code Analysis
+          script:
+            - npm install -g alice-code-analysis
+            - export ALICE_DEVELOPER_EMAIL=$(git log -1 --format='%ae')
+            - export ALICE_DEVELOPER_NAME=$(git log -1 --format='%an')
+            - alice init --non-interactive
+            - alice analyze
+  pull-requests:
+    '**':
+      - step:
+          name: ALICE Code Analysis
+          script:
+            - npm install -g alice-code-analysis
+            - export ALICE_DEVELOPER_EMAIL=$(git log -1 --format='%ae')
+            - export ALICE_DEVELOPER_NAME=$(git log -1 --format='%an')
+            - alice init --non-interactive
+            - alice analyze
+```
+
+**Setup:**
+1. Go to Repository Settings → Pipelines → Repository variables
+2. Add variable: `ALICE_API_KEY` (secured)
+3. Commit the file
+4. Enable Pipelines in Settings → Pipelines → Settings
+5. Done
+
+---
+
 ## CircleCI
 
 Add to `.circleci/config.yml`:
