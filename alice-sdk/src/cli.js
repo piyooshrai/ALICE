@@ -25,9 +25,14 @@ program
 program
   .command('init')
   .description('Initialize ALICE SDK configuration')
-  .action(async () => {
+  .option('--api-key <key>', 'API key (for non-interactive mode)')
+  .option('--server-url <url>', 'Server URL (for non-interactive mode)')
+  .option('--name <name>', 'Developer name (for non-interactive mode)')
+  .option('--email <email>', 'Developer email (for non-interactive mode)')
+  .option('--non-interactive', 'Non-interactive mode (uses environment variables)')
+  .action(async (options) => {
     try {
-      await config.setupConfig()
+      await config.setupConfig(options)
     } catch (error) {
       console.error(chalk.red('Error during initialization:', error.message))
       process.exit(1)

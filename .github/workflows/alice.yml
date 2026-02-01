@@ -1,0 +1,53 @@
+name: ALICE Code Analysis
+
+on:
+  push:
+    branches: [ main, develop, staging ]
+  pull_request:
+    branches: [ main, develop, staging ]
+
+jobs:
+  alice-analysis:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install ALICE
+        run: npm install -g alice-code-analysis
+
+      - name: Run ALICE Analysis
+        env:
+          ALICE_API_KEY: ${{ secrets.ALICE_API_KEY }}
+          ALICE_PROJECT_NAME: ${{ github.repository }}
+          ALICE_DEVELOPER_EMAIL: ${{ github.event.pusher.email }}
+          ALICE_DEVELOPER_NAME: ${{ github.event.pusher.name }}
+        run: |
+          # Auto-configure ALICE with environment variables
+          alice init --api-key "$ALICE_API_KEY" \
+                     --project-name "$ALICE_PROJECT_NAME" \
+                     --email "$ALICE_DEVELOPER_EMAIL" \
+                     --name "$ALICE_DEVELOPER_NAME" \
+                     --non-interactive
+
+          # Run analysis
+          alice analyze
+
+          # Check exit code - ALICE will exit 1 if deployment is blocked
+          if [ $? -ne 0 ]; then
+            echo "::error::ALICE found critical issues that block deployment"
+            exit 1
+          fi
+
+      - name: Block deployment on critical issues
+        if: failure()
+        run: |
+          echo "::error::Deployment blocked by ALICE - Critical bugs must be fixed"
+          echo "Check your email for detailed analysis report"
+          exit 1

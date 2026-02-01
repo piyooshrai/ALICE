@@ -60,9 +60,37 @@ function setDeveloperInfo(name, email) {
 }
 
 /**
+ * Non-interactive configuration setup (for CI/CD)
+ */
+function setupConfigNonInteractive(options = {}) {
+  // Use environment variables or options
+  const apiKey = options.apiKey || process.env.ALICE_API_KEY
+  const serverUrl = options.serverUrl || process.env.ALICE_SERVER_URL || 'https://alice-server-fawn.vercel.app'
+  const developerName = options.name || process.env.ALICE_DEVELOPER_NAME || 'CI/CD User'
+  const developerEmail = options.email || process.env.ALICE_DEVELOPER_EMAIL || 'ci@example.com'
+
+  if (!apiKey) {
+    throw new Error('API key is required. Set ALICE_API_KEY environment variable or use --api-key flag')
+  }
+
+  setApiKey(apiKey)
+  setServerUrl(serverUrl)
+  setDeveloperInfo(developerName, developerEmail)
+
+  console.log(chalk.green('\n✓ Configuration set from environment\n'))
+
+  return { apiKey, serverUrl, developerName, developerEmail }
+}
+
+/**
  * Interactive configuration setup
  */
-async function setupConfig() {
+async function setupConfig(options = {}) {
+  // Non-interactive mode for CI/CD
+  if (options.nonInteractive || process.env.CI === 'true') {
+    return setupConfigNonInteractive(options)
+  }
+
   console.log(chalk.bold.cyan('\nALICE SDK Configuration\n'))
 
   const answers = await inquirer.prompt([
@@ -81,7 +109,7 @@ async function setupConfig() {
       type: 'input',
       name: 'serverUrl',
       message: 'Server URL:',
-      default: 'https://alice-server.vercel.app',
+      default: 'https://alice-server-fawn.vercel.app',
     },
     {
       type: 'input',
