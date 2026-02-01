@@ -36,6 +36,8 @@ jobs:
       - name: Run ALICE Analysis
         env:
           ALICE_API_KEY: ${{ secrets.ALICE_API_KEY }}
+          ALICE_DEVELOPER_EMAIL: ${{ github.event.pusher.email }}
+          ALICE_DEVELOPER_NAME: ${{ github.event.pusher.name }}
         run: |
           alice init --non-interactive
           alice analyze
@@ -64,6 +66,8 @@ alice_analysis:
     - alice analyze
   variables:
     ALICE_API_KEY: $ALICE_API_KEY
+    ALICE_DEVELOPER_EMAIL: $GITLAB_USER_EMAIL
+    ALICE_DEVELOPER_NAME: $GITLAB_USER_NAME
   only:
     - main
     - develop
@@ -97,6 +101,8 @@ jobs:
       - run:
           name: Run Analysis
           command: |
+            export ALICE_DEVELOPER_EMAIL=$(git log -1 --format='%ae')
+            export ALICE_DEVELOPER_NAME=$(git log -1 --format='%an')
             alice init --non-interactive
             alice analyze
 
@@ -128,7 +134,11 @@ pipeline {
       steps {
         nodejs(nodeJSInstallationName: 'Node 18') {
           sh 'npm install -g alice-code-analysis'
-          withEnv(["ALICE_API_KEY=${env.ALICE_API_KEY}"]) {
+          withEnv([
+            "ALICE_API_KEY=${env.ALICE_API_KEY}",
+            "ALICE_DEVELOPER_EMAIL=${env.GIT_COMMITTER_EMAIL}",
+            "ALICE_DEVELOPER_NAME=${env.GIT_COMMITTER_NAME}"
+          ]) {
             sh 'alice init --non-interactive'
             sh 'alice analyze'
           }
@@ -158,6 +168,8 @@ node_js:
 
 before_script:
   - npm install -g alice-code-analysis
+  - export ALICE_DEVELOPER_EMAIL=$(git log -1 --format='%ae')
+  - export ALICE_DEVELOPER_NAME=$(git log -1 --format='%an')
   - alice init --non-interactive
 
 script:
@@ -232,13 +244,22 @@ chmod +x .git/hooks/pre-commit
 
 ## Environment Variables
 
-All CI/CD systems use these:
+**Required:**
+- `ALICE_API_KEY` - Project API key (get from dashboard, set as repo secret)
 
-- `ALICE_API_KEY` - Required (get from dashboard)
-- `ALICE_SERVER_URL` - Optional (defaults to production)
-- `ALICE_DEVELOPER_NAME` - Optional (defaults to git user)
-- `ALICE_DEVELOPER_EMAIL` - Optional (defaults to git email)
+**Auto-detected from git:**
+- `ALICE_DEVELOPER_NAME` - Developer name (from git commit author)
+- `ALICE_DEVELOPER_EMAIL` - Developer email (from git commit author)
+
+**Optional:**
+- `ALICE_SERVER_URL` - Server URL (defaults to https://alice-server-fawn.vercel.app)
 - `CI` - Auto-set by CI systems, triggers non-interactive mode
+
+**How it works:**
+1. API key identifies the project (tied to project in database)
+2. Developer name/email from git commit metadata
+3. ALICE sends technical report to developer email
+4. ALICE sends secret assessment to management
 
 ---
 
